@@ -1,0 +1,24 @@
+{
+  "name": "homeward-mls-data-viewing",
+  "version": "1.0.0",
+  "description": "MLS Data Viewing Application for Homeward",
+  "main": "server/index.js",
+  "scripts": {
+    "setup": "node setup.js",
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "test-connection": "cd server && node scripts/test-connection.js",
+    "explore-schema": "cd server && node scripts/explore-schema.js",
+    "generate-demo": "cd server && node scripts/generate-demo-data.js"
+  },
+  "keywords": ["mls", "real-estate", "data-viewing", "homeward"],
+  "author": "Homeward",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
