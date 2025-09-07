@@ -109,7 +109,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({ property, onClose }) =>
             <Chip
               label={property.status.replace('_', ' ')}
               color={getStatusColor(property.status) as any}
-              size="large"
+              size="medium"
             />
           </Stack>
 
