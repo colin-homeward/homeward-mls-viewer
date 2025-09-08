@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-const { sequelize } = require('./config/database');
+// const { sequelize } = require('./config/database'); // Using mock data for now
 const propertyRoutes = require('./routes/properties');
 const searchRoutes = require('./routes/search');
 
@@ -40,7 +40,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    database: sequelize.authenticate() ? 'Connected' : 'Disconnected'
+    database: 'Mock Data (Development Mode)'
   });
 });
 
@@ -58,34 +58,21 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Database connection and server startup
-async function startServer() {
-  try {
-    await sequelize.authenticate();
-    console.log('✅ Database connection established successfully.');
-    
-    // Sync models (in development)
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database models synchronized.');
-    }
-    
-    // Only start server if not in Vercel environment
-    if (!process.env.VERCEL) {
-      app.listen(PORT, () => {
-        console.log(`🚀 Server running on port ${PORT}`);
-        console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-      });
-    }
-  } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
-    if (!process.env.VERCEL) {
-      process.exit(1);
-    }
+// Server startup
+function startServer() {
+  console.log('✅ Using mock data for development');
+  
+  // Only start server if not in Vercel environment
+  if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`🏠 Mock data loaded with ${require('./scripts/mock-data').mockProperties.length} properties`);
+    });
   }
 }
 
-// Initialize database connection
+// Start server
 startServer();
 
 module.exports = app;

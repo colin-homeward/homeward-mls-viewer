@@ -1,5 +1,5 @@
 const express = require('express');
-const { Property } = require('../models');
+const { mockDatabase } = require('../scripts/mock-data');
 const router = express.Router();
 
 // Get property by ID
@@ -7,7 +7,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const property = await Property.findByPk(id);
+    const property = await mockDatabase.findByPk(id);
     
     if (!property) {
       return res.status(404).json({
@@ -40,11 +40,10 @@ router.get('/', async (req, res) => {
       whereClause.status = status;
     }
 
-    const { count, rows: properties } = await Property.findAndCountAll({
+    const { count, rows: properties } = await mockDatabase.findAndCountAll({
       where: whereClause,
       limit: parseInt(pageSize),
-      offset: parseInt(offset),
-      order: [['createdAt', 'DESC']]
+      offset: parseInt(offset)
     });
 
     res.json({

@@ -1,6 +1,5 @@
 const express = require('express');
-const { Op } = require('sequelize');
-const { Property } = require('../models');
+const { mockDatabase } = require('../scripts/mock-data');
 const router = express.Router();
 
 // Search properties with filters
@@ -39,109 +38,108 @@ router.post('/properties', async (req, res) => {
 
     // Text search
     if (query) {
-      whereClause[Op.or] = [
-        { address: { [Op.iLike]: `%${query}%` } },
-        { mlsNumber: { [Op.iLike]: `%${query}%` } },
-        { description: { [Op.iLike]: `%${query}%` } },
-        { city: { [Op.iLike]: `%${query}%` } }
+      whereClause.$or = [
+        { address: { $iLike: `%${query}%` } },
+        { mlsNumber: { $iLike: `%${query}%` } },
+        { description: { $iLike: `%${query}%` } },
+        { city: { $iLike: `%${query}%` } }
       ];
     }
 
     // Status filter
     if (status && status.length > 0) {
-      whereClause.status = { [Op.in]: status };
+      whereClause.status = { $in: status };
     }
 
     // Property type filter
     if (propertyType && propertyType.length > 0) {
-      whereClause.propertyType = { [Op.in]: propertyType };
+      whereClause.propertyType = { $in: propertyType };
     }
 
     // Price range
     if (minPrice !== undefined) {
-      whereClause.price = { ...whereClause.price, [Op.gte]: minPrice };
+      whereClause.price = { ...whereClause.price, $gte: minPrice };
     }
     if (maxPrice !== undefined) {
-      whereClause.price = { ...whereClause.price, [Op.lte]: maxPrice };
+      whereClause.price = { ...whereClause.price, $lte: maxPrice };
     }
 
     // Bedrooms range
     if (minBedrooms !== undefined) {
-      whereClause.bedrooms = { ...whereClause.bedrooms, [Op.gte]: minBedrooms };
+      whereClause.bedrooms = { ...whereClause.bedrooms, $gte: minBedrooms };
     }
     if (maxBedrooms !== undefined) {
-      whereClause.bedrooms = { ...whereClause.bedrooms, [Op.lte]: maxBedrooms };
+      whereClause.bedrooms = { ...whereClause.bedrooms, $lte: maxBedrooms };
     }
 
     // Bathrooms range
     if (minBathrooms !== undefined) {
-      whereClause.bathrooms = { ...whereClause.bathrooms, [Op.gte]: minBathrooms };
+      whereClause.bathrooms = { ...whereClause.bathrooms, $gte: minBathrooms };
     }
     if (maxBathrooms !== undefined) {
-      whereClause.bathrooms = { ...whereClause.bathrooms, [Op.lte]: maxBathrooms };
+      whereClause.bathrooms = { ...whereClause.bathrooms, $lte: maxBathrooms };
     }
 
     // Square feet range
     if (minSquareFeet !== undefined) {
-      whereClause.squareFeet = { ...whereClause.squareFeet, [Op.gte]: minSquareFeet };
+      whereClause.squareFeet = { ...whereClause.squareFeet, $gte: minSquareFeet };
     }
     if (maxSquareFeet !== undefined) {
-      whereClause.squareFeet = { ...whereClause.squareFeet, [Op.lte]: maxSquareFeet };
+      whereClause.squareFeet = { ...whereClause.squareFeet, $lte: maxSquareFeet };
     }
 
     // Year built range
     if (minYearBuilt !== undefined) {
-      whereClause.yearBuilt = { ...whereClause.yearBuilt, [Op.gte]: minYearBuilt };
+      whereClause.yearBuilt = { ...whereClause.yearBuilt, $gte: minYearBuilt };
     }
     if (maxYearBuilt !== undefined) {
-      whereClause.yearBuilt = { ...whereClause.yearBuilt, [Op.lte]: maxYearBuilt };
+      whereClause.yearBuilt = { ...whereClause.yearBuilt, $lte: maxYearBuilt };
     }
 
     // Date listed range
     if (dateListedFrom) {
-      whereClause.dateListed = { ...whereClause.dateListed, [Op.gte]: new Date(dateListedFrom) };
+      whereClause.dateListed = { ...whereClause.dateListed, $gte: new Date(dateListedFrom) };
     }
     if (dateListedTo) {
-      whereClause.dateListed = { ...whereClause.dateListed, [Op.lte]: new Date(dateListedTo) };
+      whereClause.dateListed = { ...whereClause.dateListed, $lte: new Date(dateListedTo) };
     }
 
     // Date sold range
     if (dateSoldFrom) {
-      whereClause.dateSold = { ...whereClause.dateSold, [Op.gte]: new Date(dateSoldFrom) };
+      whereClause.dateSold = { ...whereClause.dateSold, $gte: new Date(dateSoldFrom) };
     }
     if (dateSoldTo) {
-      whereClause.dateSold = { ...whereClause.dateSold, [Op.lte]: new Date(dateSoldTo) };
+      whereClause.dateSold = { ...whereClause.dateSold, $lte: new Date(dateSoldTo) };
     }
 
     // Location filters
     if (city && city.length > 0) {
-      whereClause.city = { [Op.in]: city };
+      whereClause.city = { $in: city };
     }
     if (state && state.length > 0) {
-      whereClause.state = { [Op.in]: state };
+      whereClause.state = { $in: state };
     }
     if (zipCode && zipCode.length > 0) {
-      whereClause.zipCode = { [Op.in]: zipCode };
+      whereClause.zipCode = { $in: zipCode };
     }
 
     // Days on market range
     if (minDaysOnMarket !== undefined) {
-      whereClause.daysOnMarket = { ...whereClause.daysOnMarket, [Op.gte]: minDaysOnMarket };
+      whereClause.daysOnMarket = { ...whereClause.daysOnMarket, $gte: minDaysOnMarket };
     }
     if (maxDaysOnMarket !== undefined) {
-      whereClause.daysOnMarket = { ...whereClause.daysOnMarket, [Op.lte]: maxDaysOnMarket };
+      whereClause.daysOnMarket = { ...whereClause.daysOnMarket, $lte: maxDaysOnMarket };
     }
 
     // Features filter (if features is an array)
     if (features && features.length > 0) {
-      whereClause.features = { [Op.contains]: features };
+      whereClause.features = { $contains: features };
     }
 
-    const { count, rows: properties } = await Property.findAndCountAll({
+    const { count, rows: properties } = await mockDatabase.findAndCountAll({
       where: whereClause,
       limit: parseInt(pageSize),
-      offset: parseInt(offset),
-      order: [['createdAt', 'DESC']]
+      offset: parseInt(offset)
     });
 
     res.json({
@@ -171,22 +169,11 @@ router.post('/stats', async (req, res) => {
     // Build where clause similar to search
     const whereClause = buildWhereClause(filters);
 
-    const stats = await Property.findAll({
-      where: whereClause,
-      attributes: [
-        [Property.sequelize.fn('COUNT', Property.sequelize.col('id')), 'totalProperties'],
-        [Property.sequelize.fn('AVG', Property.sequelize.col('price')), 'avgPrice'],
-        [Property.sequelize.fn('MIN', Property.sequelize.col('price')), 'minPrice'],
-        [Property.sequelize.fn('MAX', Property.sequelize.col('price')), 'maxPrice'],
-        [Property.sequelize.fn('AVG', Property.sequelize.col('squareFeet')), 'avgSquareFeet'],
-        [Property.sequelize.fn('AVG', Property.sequelize.col('daysOnMarket')), 'avgDaysOnMarket']
-      ],
-      raw: true
-    });
+    const stats = await mockDatabase.getStats(whereClause);
 
     res.json({
       success: true,
-      data: stats[0] || {}
+      data: stats
     });
   } catch (error) {
     console.error('Error fetching stats:', error);
@@ -201,34 +188,11 @@ router.post('/stats', async (req, res) => {
 router.get('/filter-options', async (req, res) => {
   try {
     const [statuses, propertyTypes, cities, states, zipCodes] = await Promise.all([
-      Property.findAll({
-        attributes: ['status'],
-        group: ['status'],
-        raw: true
-      }),
-      Property.findAll({
-        attributes: ['propertyType'],
-        group: ['propertyType'],
-        raw: true
-      }),
-      Property.findAll({
-        attributes: ['city'],
-        group: ['city'],
-        order: [['city', 'ASC']],
-        raw: true
-      }),
-      Property.findAll({
-        attributes: ['state'],
-        group: ['state'],
-        order: [['state', 'ASC']],
-        raw: true
-      }),
-      Property.findAll({
-        attributes: ['zipCode'],
-        group: ['zipCode'],
-        order: [['zipCode', 'ASC']],
-        raw: true
-      })
+      mockDatabase.getUniqueValues('status'),
+      mockDatabase.getUniqueValues('propertyType'),
+      mockDatabase.getUniqueValues('city'),
+      mockDatabase.getUniqueValues('state'),
+      mockDatabase.getUniqueValues('zipCode')
     ]);
 
     res.json({
@@ -236,9 +200,9 @@ router.get('/filter-options', async (req, res) => {
       data: {
         statuses: statuses.map(s => s.status),
         propertyTypes: propertyTypes.map(p => p.propertyType),
-        cities: cities.map(c => c.city),
-        states: states.map(s => s.state),
-        zipCodes: zipCodes.map(z => z.zipCode)
+        cities: cities.map(c => c.city).sort(),
+        states: states.map(s => s.state).sort(),
+        zipCodes: zipCodes.map(z => z.zipCode).sort()
       }
     });
   } catch (error) {

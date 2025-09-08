@@ -3,11 +3,11 @@ const { Sequelize } = require('sequelize');
 // Database configuration
 const sequelize = new Sequelize({
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 5432,
+  port: process.env.DB_PORT || 5439,
   database: process.env.DB_NAME,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  dialect: 'postgres',
+  dialect: 'postgres', // Redshift is PostgreSQL-compatible
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
   pool: {
     max: 10,
@@ -16,10 +16,19 @@ const sequelize = new Sequelize({
     idle: 10000
   },
   dialectOptions: {
-    ssl: process.env.NODE_ENV === 'production' ? {
+    ssl: {
       require: true,
       rejectUnauthorized: false
-    } : false
+    },
+    // Redshift-specific options
+    options: {
+      useUTC: false,
+      timezone: '+00:00'
+    }
+  },
+  // Disable PostgreSQL-specific features that Redshift doesn't support
+  define: {
+    timestamps: false
   }
 });
 
